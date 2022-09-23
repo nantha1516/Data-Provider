@@ -1,0 +1,85 @@
+package testNG;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+
+public class DataDrivenUsingPOI {
+	
+	static List<String> userNameList= new ArrayList<String>();
+	static List<String> passWordList= new ArrayList<String>();
+	
+	public void readExcel() throws IOException {
+		FileInputStream excel= new FileInputStream("C:\\Users\\FS-098\\Desktop\\TestCase1.xlsx");
+		
+		Workbook workbook = new XSSFWorkbook(excel) ;
+			Sheet sheet= workbook.getSheetAt(0); 
+			Iterator<Row> rowIterator= sheet.iterator();
+		
+			while(rowIterator.hasNext())
+			{
+				Row rowValue= rowIterator.next();
+			}
+			Row rowValue;
+			Iterator<Cell> columnIterator= rowValue.iterator();
+			int i=2;
+			while(columnIterator.hasNext()) 
+			{
+			if(i%2==0) 
+			{
+				userNameList.add(columnIterator.next().getStringCellValue());
+			}
+			else 
+			{
+				passWordList.add(columnIterator.next().getStringCellValue());
+			}
+			i++;
+	}
+}
+
+	public void login(String Uname, String Pword) 
+	{
+		System.setProperty("webdriver.chrome.driver","C:\\Users\\chromedriver.exe");					
+	     WebDriver driver = new ChromeDriver();
+	     
+		driver.get("https://github.com/login");
+		
+	    driver.findElement(By.name("login")).sendKeys(Uname);
+	    
+	    driver.findElement(By.name("password")).sendKeys(Pword);
+	    
+	    driver.findElement(By.name("commit")).click();
+	    
+	    driver.quit();
+	}
+	
+	public void executeTest() 
+	{
+		for(int i=0; i<userNameList.size();i++) 
+		{
+		login(userNameList.get(i),passWordList.get(i));
+		}
+	}
+
+	public static void main(String[] args) throws IOException
+	{
+		// TODO Auto-generated method stub
+		DataDrivenUsingPOI usingPOI= new DataDrivenUsingPOI();
+		usingPOI.readExcel();
+		System.out.println("userName List" + userNameList);
+		System.out.println("passWord List" + passWordList);
+	}
+
+}
